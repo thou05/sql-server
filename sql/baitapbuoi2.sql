@@ -59,12 +59,14 @@ select * from SinhVien
 
 --2
 create view svvoima
-as select LopHocPhan_SinhVien.MaHocPhan, HocPhan.TenHocPhan, LopHocPhan_SinhVien.DiemQuaTrinh, LopHocPhan_SinhVien.DiemThiKTHP, LopHocPhan_SinhVien.DiemTKHP, LopHocPhan_SinhVien.DiemHeChu
-from LopHocPhan_SinhVien 
-join LopHocPhan on LopHocPhan.MaHocPhan = LopHocPhan_SinhVien.MaHocPhan
+as 
+select lhpsv.MaHocPhan, TenHocPhan, DiemQuaTrinh, DiemThiKTHP, MAX(DiemTKHP) as diemtongket, DiemHeChu
+from LopHocPhan_SinhVien lhpsv
+join LopHocPhan on LopHocPhan.MaHocPhan = lhpsv.MaHocPhan
 join HocPhan on LopHocPhan.MaHocPhan = HocPhan.MaHocPhan
-join SinhVien on LopHocPhan_SinhVien.MaSinhVien = SinhVien.MaSinhVien
+join SinhVien on lhpsv.MaSinhVien = SinhVien.MaSinhVien
 where SinhVien.MaSinhVien = '171202737'
+group by lhpsv.MaHocPhan, TenHocPhan, DiemQuaTrinh, DiemThiKTHP, DiemHeChu
 
 select * from svvoima
 
@@ -80,16 +82,27 @@ select * from giangvientatca
 
 
 --3
-create view svnohp
-as
+
 select SinhVien.MaSinhVien, SinhVien.HoDem, SinhVien.Ten, HocPhan.TenHocPhan, MAX(LopHocPhan_SinhVien.DiemTKHP) as diem
 from SinhVien
 join LopHocPhan_SinhVien on SinhVien.MaSinhVien = LopHocPhan_SinhVien.MaSinhVien
 join LopHocPhan on LopHocPhan.MaLopHocPhan = LopHocPhan_SinhVien.MaLopHocPhan
 join HocPhan on HocPhan.MaHocPhan = LopHocPhan.MaHocPhan
 where TenHocPhan like N'Cơ sở dư liệu%'
-group by SinhVien.MaSinhVien, SinhVien.HoDem, SinhVien.Ten, LopHocPhan,MaHocPhan
-having max
+group by SinhVien.MaSinhVien, SinhVien.HoDem, SinhVien.Ten,HocPhan.TenHocPhan, LopHocPhan.MaHocPhan
+having max(DiemTKHP) < 4
+
+--
+create view svnohp
+as
+select SinhVien.MaSinhVien, SinhVien.HoDem, SinhVien.Ten, lhp.MaHocPhan, MAX(LopHocPhan_SinhVien.DiemTKHP) as diem
+from SinhVien
+join LopHocPhan_SinhVien on SinhVien.MaSinhVien = LopHocPhan_SinhVien.MaSinhVien
+join LopHocPhan lhp on lhp.MaLopHocPhan = LopHocPhan_SinhVien.MaLopHocPhan
+where TenLopHocPhan like N'Cơ sở dư liệu%'
+group by SinhVien.MaSinhVien, SinhVien.HoDem, SinhVien.Ten, LHP.MaHocPhan
+having max(DiemTKHP) < 4
+
 
 --4
 
