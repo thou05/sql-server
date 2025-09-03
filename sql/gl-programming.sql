@@ -134,3 +134,84 @@ go
 
 exec pr_insertEvent N'inset nek'
 exec pr_insertEvent N'thao le xinh gai'
+
+--TRIGGER
+
+select * from Event
+
+go
+
+create trigger tr_CheckInsertionOnEven on Event
+for insert
+as
+begin
+	print 'u have just inserted a record in event table'
+end
+
+go
+
+exec pr_insertEvent N'thao le tuyet voi vo cung' --check noti insert
+
+select * from Event
+go
+
+--ko cho insert vao table
+create trigger tr_forbidInsertionEvent on Event
+for insert
+as
+begin
+	print 'u have just inserted a record in event table. so sory'
+	rollback -- cấm, unfo những gì đã xảy ra khi insert
+end
+
+exec pr_insertEvent N'fuckkkin'
+
+drop trigger tr_forbidInsertionEvent
+drop trigger tr_CheckInsertionOnEven
+go
+--kiểm tra ko cho insert quá 6 records/events
+--sql có thể đếm, quyết định đếm xong làm gì tiếp -> lập trình -> trigger chặn ko cho vào
+
+--test
+create trigger tr_checkInsertionLimitationEventTest on Event
+for insert
+as
+begin
+	--xem thử ngta chèn event gì vào
+	select * from inserted
+	rollback
+end
+
+exec pr_insertEvent N'fuck u'
+
+drop trigger tr_checkInsertionLimitationEvent
+
+go
+
+
+--đây là loại after
+create trigger tr_CheckInsertionLimitationEvent on Event
+for insert
+as
+begin
+	--ktra xem trong table event ko cho vượt quá (3)6 sự kiện
+	--if số dự kiện > 6 thì rollback
+	--phải đếm số sự kiện đang có
+	--lấy đc số dự kiện ra để if, tứ là khai báo biến
+	--lệnh count(*) trong select trả về 1 table, ko trả về 1 biến
+	declare @noEvents int
+	select @noEvents = COUNT(*) from Event
+	--print @noEvents
+	if @noEvents > 6
+	begin
+		print 'to much events. no more 6 events'
+		rollback
+	end
+end
+
+go
+
+select * from Event
+exec pr_insertEvent N'fuck u'
+
+

@@ -89,8 +89,28 @@ select * from vw_londonEmployees
 - bắt buộc phải có `dbo.ten`
 
 ## Trigger
+- là 1 hàm void, ko nhận tham số, ko trả về
+- nó làm nhiệm vụ gác cổng 1 table nào đó
+- nếu có sự thay đổi data trong table, nó sẽ tự động được thực thi, chạy
+- dùng để kiểm tra/đảm bảo tính toàn vẹn, nhất quán, consistency của dữ liệu
+- hoặc dùng để kiểm tra các ràng buộc mà sql chuẩn không thể cung cấp đủ
+- chỉ tự gọi liên quan đến table nào đó và liên quan đến 3 lệnh: insert, update, delete
+- gắn chặt với 1 table, nhưng ko cấm code của nó can thiệp table
+- 1 table ko ép phải có trigger
 
 
+- LƯU Ý khi chơi trigger
+	- db engine sẽ tự tạo ra 2 table `ảo` lúc runtime liên quan đến trigger
+		- câu lệnh insert vào table -> db e. tạo ra 1 table ảo tên inserted chứa record vừa đưa vào từ câu lệnh insert
+		- câu lệnh delete vào table -> db e. tạo ra 1 table ảo tên deleted chứa những dòng vừa bị xóa
+		- câu lệnh update even set name = 'đổi tên'  -> db e. tạo 2 table ảo 
+			- inserted chứa value mới đưa vào
+			- deleted chứa value cũ/bị ghi đè
+
+
+- liên quan đến table, có 2 loại trigger cơ bản
+	- chặn trc khi dữ liệu đưa vào table, lúc này dữ liệu mới vào inserted (before)
+	- chặn sau khi đã vào inserted và đồng thời vào luôn table rồi (after)
 
 -----
 ## References
